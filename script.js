@@ -66,7 +66,7 @@ const input = document.getElementById("taskInput");
 const sendButton = document.getElementById("sendButton");
 const status = document.getElementById("status");
 
-function submitTask() {
+async function submitTask() {
 
     const text = input.value.trim();
 
@@ -75,12 +75,122 @@ function submitTask() {
         return;
     }
 
-    console.log("User said:", text);
 
-    status.textContent = `Got it: "${text}"`;
+    // UI state
 
-    input.value = "";
+    sendButton.disabled = true;
+
+    status.textContent = "Turning that into a plan...";
+
+
+    try {
+
+        const response = await fetch("/api/tasks", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify({
+                text: text
+            })
+
+        });
+
+
+        const data = await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error || "Something went wrong."
+            );
+
+        }
+
+
+        console.log("Tasks:", data.tasks);
+
+
+        // Display tasks
+
+        renderTasks(data.tasks);
+
+
+        // Clear input
+
+        input.value = "";
+
+        status.textContent = "";
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        status.textContent =
+            "Couldn't turn that into tasks. Try again.";
+
+
+    } finally {
+
+        sendButton.disabled = false;
+
+    }
+
 }
+function renderTasks(tasks) {
+
+    const taskList = document.getElementById("taskList");
+
+    taskList.innerHTML = "";
+
+
+    tasks.forEach((task) => {
+
+        const taskElement = document.createElement("div");
+
+        taskElement.className = "task";
+
+
+        taskElement.innerHTML = `
+            <button
+                class="checkbox"
+                aria-label="Complete task"
+            ></button>
+
+            <span class="task-title"></span>
+        `;
+
+
+        // Safely insert AI-generated text
+
+        taskElement.querySelector(".task-title").textContent =
+    task;
+
+
+        // Checkbox
+
+        const checkbox =
+            taskElement.querySelector(".checkbox");
+
+
+        checkbox.addEventListener("click", () => {
+
+            taskElement.classList.toggle("completed");
+
+        });
+
+
+        taskList.appendChild(taskElement);
+
+    });
+
+}
+
 
 
 // Send button

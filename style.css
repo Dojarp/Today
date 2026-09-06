@@ -352,3 +352,138 @@ button {
         border-radius: 14px;
     }
 }
+
+/* =========================
+   TASK LIST
+========================= */
+
+.task-list {
+    width: min(700px, 100%);
+
+    margin: 30px auto 0;
+
+    display: flex;
+    flex-direction: column;
+
+    gap: 10px;
+
+    text-align: left;
+}
+
+
+/* Individual task */
+
+.task {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+
+    padding: 16px 18px;
+
+    background: rgba(20, 21, 25, 0.7);
+
+    border: 1px solid rgba(255, 255, 255, 0.07);
+
+    border-radius: 15px;
+
+    transition:
+        opacity 0.3s ease,
+        transform 0.3s ease,
+        background 0.3s ease;
+}
+
+
+/* Checkbox */
+
+.checkbox {
+    width: 20px;
+    height: 20px;
+
+    flex-shrink: 0;
+
+    padding: 0;
+
+    border: 1.5px solid #666871;
+
+    border-radius: 6px;
+
+    background: transparent;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.checkbox:hover {
+    border-color: white;
+}
+
+
+.checkbox:active {
+    transform: scale(0.9);
+}
+
+
+/* Task text */
+
+.task-title {
+    color: #eeeeef;
+
+    font-size: 15px;
+
+    line-height: 1.4;
+
+    transition:
+        color 0.3s ease,
+        text-decoration-color 0.3s ease;
+}
+
+
+/* Completed */
+
+.task.completed {
+    opacity: 0.45;
+}
+
+
+.task.completed .checkbox {
+    background: white;
+
+    border-color: white;
+
+    position: relative;
+}
+
+
+.task.completed .checkbox::after {
+    content: "";
+
+    position: absolute;
+
+    width: 5px;
+    height: 9px;
+
+    left: 6px;
+    top: 3px;
+
+    border-right: 2px solid #08090b;
+    border-bottom: 2px solid #08090b;
+
+    transform: rotate(45deg);
+}
+
+
+.task.completed .task-title {
+    color: #777983;
+
+    text-decoration: line-through;
+
+    text-decoration-thickness: 1.5px;
+
+    text-decoration-color: #777983;
+}
