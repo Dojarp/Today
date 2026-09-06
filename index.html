@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Today</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="background-glow"></div>
+
+    <main class="hero">
+
+        <!-- Date -->
+        <div class="eyebrow">
+            <span id="currentDate"></span>
+        </div>
+
+        <!-- Main heading -->
+        <h1>
+            What's on your <span>mind today?</span>
+        </h1>
+
+        <!-- Random motivation quote -->
+        <p class="subtitle">
+            <span class="quote-dot"></span>
+            <span id="quote"></span>
+        </p>
+
+        <!-- Input -->
+        <div class="input-container">
+
+            <input
+                type="text"
+                id="taskInput"
+                placeholder="Tell me what you want to do..."
+                autocomplete="off"
+            >
+
+            <div class="actions">
+
+                <!-- Microphone -->
+                <button
+                    id="micButton"
+                    class="icon-button"
+                    aria-label="Use microphone"
+                >
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z"/>
+                        <path d="M19 11a7 7 0 0 1-14 0"/>
+                        <path d="M12 18v4"/>
+                        <path d="M8 22h8"/>
+                    </svg>
+                </button>
+
+                <!-- Send -->
+                <button
+                    id="sendButton"
+                    class="send-button"
+                    aria-label="Submit"
+                >
+                    <svg viewBox="0 0 24 24">
+                        <path d="M5 12h14"/>
+                        <path d="m13 6 6 6-6 6"/>
+                    </svg>
+                </button>
+
+            </div>
+
+        </div>
+
+        <p id="status" class="status"></p>
+
+    </main>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
