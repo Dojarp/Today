@@ -21,16 +21,18 @@
             <span id="currentDate"></span>
         </div>
 
+
         <!-- Main heading -->
         <h1>
             What's on your <span>mind today?</span>
         </h1>
 
+
         <!-- Random motivation quote -->
         <p class="subtitle">
-            <span class="quote-dot"></span>
             <span id="quote"></span>
         </p>
+
 
         <!-- Input -->
         <div class="input-container">
@@ -49,24 +51,43 @@
                     id="micButton"
                     class="icon-button"
                     aria-label="Use microphone"
+                    type="button"
                 >
                     <svg viewBox="0 0 24 24">
-                        <path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z"/>
-                        <path d="M19 11a7 7 0 0 1-14 0"/>
-                        <path d="M12 18v4"/>
-                        <path d="M8 22h8"/>
+
+                        <path
+                            d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z"
+                        />
+
+                        <path
+                            d="M19 11a7 7 0 0 1-14 0"
+                        />
+
+                        <path
+                            d="M12 18v4"
+                        />
+
+                        <path
+                            d="M8 22h8"
+                        />
+
                     </svg>
                 </button>
+
 
                 <!-- Send -->
                 <button
                     id="sendButton"
                     class="send-button"
                     aria-label="Submit"
+                    type="button"
                 >
                     <svg viewBox="0 0 24 24">
-                        <path d="M5 12h14"/>
-                        <path d="m13 6 6 6-6 6"/>
+
+                        <path d="M5 12h14"></path>
+
+                        <path d="m13 6 6 6-6 6"></path>
+
                     </svg>
                 </button>
 
@@ -74,11 +95,23 @@
 
         </div>
 
-        <p id="status" class="status"></p>
-        <div id="taskList" class="task-list"></div>
 
+        <!-- Processing / status -->
+        <p
+            id="status"
+            class="status"
+            aria-live="polite"
+        ></p>
+
+
+        <!-- Tasks -->
+        <div
+            id="taskList"
+            class="task-list"
+        ></div>
 
     </main>
+
 
     <script src="script.js"></script>
 

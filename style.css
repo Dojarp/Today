@@ -18,28 +18,25 @@
 body {
     min-height: 100vh;
     overflow: hidden;
-
     background: var(--bg);
     color: var(--text);
-
     font-family: 'Inter', sans-serif;
-
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-/* Background glow */
+
+/* =========================
+   BACKGROUND GLOW
+   ========================= */
 
 .background-glow {
     position: fixed;
-
     width: 600px;
     height: 600px;
-
     top: 35%;
     left: 50%;
-
     transform: translate(-50%, -50%);
 
     background: radial-gradient(
@@ -49,22 +46,25 @@ body {
     );
 
     filter: blur(40px);
-
     pointer-events: none;
 }
 
-/* Main content */
+
+/* =========================
+   MAIN CONTENT
+   ========================= */
 
 .hero {
     width: min(1050px, 90%);
-
     text-align: center;
-
     position: relative;
     z-index: 1;
 }
 
-/* Date */
+
+/* =========================
+   DATE
+   ========================= */
 
 .eyebrow {
     display: flex;
@@ -72,24 +72,22 @@ body {
     align-items: center;
 
     color: #777983;
-
     font-size: 12px;
     font-weight: 600;
-
     letter-spacing: 2px;
 
     margin-bottom: 28px;
 }
 
-/* Main heading */
+
+/* =========================
+   MAIN HEADING
+   ========================= */
 
 h1 {
     font-size: clamp(42px, 6vw, 72px);
-
     line-height: 1.05;
-
     letter-spacing: -3px;
-
     font-weight: 600;
 
     margin-bottom: 22px;
@@ -101,37 +99,25 @@ h1 span {
     color: #777983;
 }
 
-/* Quote */
+
+/* =========================
+   QUOTE
+   ========================= */
 
 .subtitle {
     color: var(--muted);
-
-    font-size: 16px;
-
+    font-size: 14px;
     margin-bottom: 40px;
 
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
 }
 
-/* Purple dot */
 
-.quote-dot {
-    width: 6px;
-    height: 6px;
-
-    flex-shrink: 0;
-
-    background: #8b8bff;
-
-    border-radius: 50%;
-
-    box-shadow: 0 0 12px #8b8bff;
-}
-
-/* Input */
+/* =========================
+   INPUT
+   ========================= */
 
 .input-container {
     width: 100%;
@@ -145,7 +131,6 @@ h1 span {
     background: var(--card);
 
     border: 1px solid var(--border);
-
     border-radius: 22px;
 
     backdrop-filter: blur(20px);
@@ -167,17 +152,17 @@ h1 span {
         0 0 0 4px rgba(255, 255, 255, 0.025);
 }
 
-/* Text field */
+
+/* =========================
+   TEXT FIELD
+   ========================= */
 
 input {
     flex: 1;
-
     min-width: 0;
-
     height: 100%;
 
     background: transparent;
-
     border: none;
     outline: none;
 
@@ -191,7 +176,10 @@ input::placeholder {
     color: #55565d;
 }
 
-/* Buttons */
+
+/* =========================
+   BUTTONS
+   ========================= */
 
 .actions {
     display: flex;
@@ -204,7 +192,10 @@ button {
     cursor: pointer;
 }
 
-/* Microphone */
+
+/* =========================
+   MICROPHONE
+   ========================= */
 
 .icon-button,
 .send-button {
@@ -224,13 +215,11 @@ button {
 
 .icon-button {
     background: transparent;
-
     color: #777983;
 }
 
 .icon-button:hover {
     background: rgba(255, 255, 255, 0.06);
-
     color: white;
 }
 
@@ -239,23 +228,24 @@ button {
     height: 21px;
 
     fill: none;
-
     stroke: currentColor;
-
     stroke-width: 1.8;
-
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
-/* Mic active state */
+
+/* =========================
+   MIC ACTIVE STATE
+   ========================= */
 
 .icon-button.listening {
     color: white;
 
     background: rgba(255, 255, 255, 0.1);
 
-    box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.04);
+    box-shadow:
+        0 0 0 5px rgba(255, 255, 255, 0.04);
 }
 
 .icon-button.listening svg {
@@ -268,18 +258,21 @@ button {
     }
 }
 
-/* Send button */
+
+/* =========================
+   SEND BUTTON
+   ========================= */
 
 .send-button {
     background: white;
-
     color: #08090b;
 }
 
 .send-button:hover {
     transform: translateX(2px);
 
-    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.12);
+    box-shadow:
+        0 5px 20px rgba(255, 255, 255, 0.12);
 }
 
 .send-button:active {
@@ -291,18 +284,16 @@ button {
     height: 20px;
 
     fill: none;
-
     stroke: currentColor;
-
     stroke-width: 2;
-
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
 
-
-/* Status */
+/* =========================
+   STATUS
+   ========================= */
 
 .status {
     min-height: 20px;
@@ -310,11 +301,69 @@ button {
     margin-top: 18px;
 
     color: #777983;
+    font-size: 15px;
 
-    font-size: 13px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 10px;
 }
 
-/* Mobile */
+
+/* =========================
+   PURPLE STATUS DOT
+   ========================= */
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+
+    flex-shrink: 0;
+
+    background: #8b8bff;
+
+    border-radius: 50%;
+
+    box-shadow:
+        0 0 12px #8b8bff;
+}
+
+
+/* =========================
+   PURPLE DOT PULSE
+   ========================= */
+
+.status.processing .status-dot {
+    animation:
+        statusDotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes statusDotPulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.65;
+
+        box-shadow:
+            0 0 8px #8b8bff;
+    }
+
+    50% {
+        transform: scale(1.45);
+        opacity: 1;
+
+        box-shadow:
+            0 0 12px #8b8bff,
+            0 0 20px rgba(139, 139, 255, 0.45);
+    }
+}
+
+
+/* =========================
+   MOBILE
+   ========================= */
 
 @media (max-width: 600px) {
 
@@ -329,7 +378,6 @@ button {
     h1 {
         font-size: 42px;
         letter-spacing: -2px;
-
         white-space: normal;
     }
 
@@ -340,9 +388,7 @@ button {
 
     .input-container {
         height: 68px;
-
         border-radius: 19px;
-
         padding-left: 18px;
     }
 
@@ -350,14 +396,14 @@ button {
     .send-button {
         width: 46px;
         height: 46px;
-
         border-radius: 14px;
     }
 }
 
+
 /* =========================
    TASK LIST
-========================= */
+   ========================= */
 
 .task-list {
     width: min(700px, 100%);
@@ -373,7 +419,9 @@ button {
 }
 
 
-/* Individual task */
+/* =========================
+   INDIVIDUAL TASK
+   ========================= */
 
 .task {
     display: flex;
@@ -396,7 +444,9 @@ button {
 }
 
 
-/* Checkbox */
+/* =========================
+   CHECKBOX
+   ========================= */
 
 .checkbox {
     width: 20px;
@@ -407,7 +457,6 @@ button {
     padding: 0;
 
     border: 1.5px solid #666871;
-
     border-radius: 6px;
 
     background: transparent;
@@ -420,24 +469,23 @@ button {
         transform 0.2s ease;
 }
 
-
 .checkbox:hover {
     border-color: white;
 }
-
 
 .checkbox:active {
     transform: scale(0.9);
 }
 
 
-/* Task text */
+/* =========================
+   TASK TEXT
+   ========================= */
 
 .task-title {
     color: #eeeeef;
 
     font-size: 15px;
-
     line-height: 1.4;
 
     transition:
@@ -446,21 +494,20 @@ button {
 }
 
 
-/* Completed */
+/* =========================
+   COMPLETED
+   ========================= */
 
 .task.completed {
     opacity: 0.45;
 }
 
-
 .task.completed .checkbox {
     background: white;
-
     border-color: white;
 
     position: relative;
 }
-
 
 .task.completed .checkbox::after {
     content: "";
@@ -479,17 +526,13 @@ button {
     transform: rotate(45deg);
 }
 
-
 .task.completed .task-title {
     color: #777983;
 
     text-decoration: line-through;
-
     text-decoration-thickness: 1.5px;
-
     text-decoration-color: #777983;
 }
-
 
 
 /* =========================
@@ -498,6 +541,7 @@ button {
 
 #sendButton {
     opacity: 0.4;
+
     transition:
         opacity 0.2s ease,
         box-shadow 0.2s ease,
@@ -509,6 +553,7 @@ button {
 
 #sendButton.has-text {
     opacity: 1;
+
     box-shadow:
         0 0 10px rgba(255, 255, 255, 0.25);
 }

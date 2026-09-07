@@ -68,15 +68,58 @@ const status = document.getElementById("status");
 
 
 // =========================
+// STATUS
+// =========================
+
+function setStatus(message, processing = false) {
+
+    status.innerHTML = "";
+
+    if (!message) {
+        status.classList.remove("processing");
+        return;
+    }
+
+
+    // Purple dot
+
+    const dot = document.createElement("span");
+
+    dot.className = "status-dot";
+
+
+    // Status text
+
+    const text = document.createElement("span");
+
+    text.textContent = message;
+
+
+    status.appendChild(dot);
+    status.appendChild(text);
+
+
+    if (processing) {
+        status.classList.add("processing");
+    } else {
+        status.classList.remove("processing");
+    }
+
+}
+
+
+// =========================
 // SEND BUTTON STATE
 // =========================
 
 function updateSendButton() {
 
     // Don't change the button while voice recording
+
     if (isListening) {
         return;
     }
+
 
     if (input.value.trim()) {
 
@@ -125,7 +168,13 @@ async function submitTask() {
 
     sendButton.classList.remove("has-text");
 
-    status.textContent = "Turning that into a plan...";
+
+    // Show processing status + purple pulse
+
+    setStatus(
+        "Turning that into a plan...",
+        true
+    );
 
 
     try {
@@ -171,15 +220,19 @@ async function submitTask() {
 
         updateSendButton();
 
-        status.textContent = "";
+
+        // Remove status + purple dot
+
+        setStatus("");
 
 
     } catch (error) {
 
         console.error(error);
 
-        status.textContent =
-            "Couldn't turn that into tasks. Try again.";
+        setStatus(
+            "Couldn't turn that into tasks. Try again."
+        );
 
         updateSendButton();
 
@@ -252,8 +305,8 @@ function renderTasks(tasks) {
 
 sendButton.addEventListener("click", () => {
 
-    // While recording, the send button
-    // becomes the voice confirmation button.
+    // While recording,
+    // send button becomes the voice confirmation button.
 
     if (isListening) {
 
@@ -302,17 +355,18 @@ let isListening = false;
 
 let finalTranscript = "";
 
-// Used to detect whether the current voice session
-// was cancelled with the X button.
-let voiceWasCancelled = false;
 
+// =========================
+// CHECK MICROPHONE SUPPORT
+// =========================
 
 if (!SpeechRecognition) {
 
     micButton.addEventListener("click", () => {
 
-        status.textContent =
-            "Voice input isn't supported in this browser.";
+        setStatus(
+            "Voice input isn't supported in this browser."
+        );
 
     });
 
@@ -427,8 +481,19 @@ if (!SpeechRecognition) {
                 stroke-linecap="round"
                 aria-hidden="true"
             >
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line
+                    x1="6"
+                    y1="6"
+                    x2="18"
+                    y2="18"
+                ></line>
+
+                <line
+                    x1="18"
+                    y1="6"
+                    x2="6"
+                    y2="18"
+                ></line>
             </svg>
         `;
 
@@ -454,7 +519,9 @@ if (!SpeechRecognition) {
                 stroke-linejoin="round"
                 aria-hidden="true"
             >
-                <polyline points="5 12 10 17 19 7"></polyline>
+                <polyline
+                    points="5 12 10 17 19 7"
+                ></polyline>
             </svg>
         `;
 
@@ -464,6 +531,75 @@ if (!SpeechRecognition) {
         );
 
         sendButton.classList.add("voice-confirm");
+
+    }
+
+
+    // =========================
+    // REQUEST MICROPHONE PERMISSION
+    // =========================
+
+    async function requestMicrophonePermission() {
+
+        if (
+            !navigator.mediaDevices ||
+            !navigator.mediaDevices.getUserMedia
+        ) {
+
+            return false;
+
+        }
+
+
+        try {
+
+            const stream =
+                await navigator.mediaDevices.getUserMedia({
+                    audio: true
+                });
+
+
+            stream.getTracks().forEach((track) => {
+                track.stop();
+            });
+
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Microphone permission error:",
+                error
+            );
+
+
+            if (
+                error.name === "NotAllowedError" ||
+                error.name === "PermissionDeniedError"
+            ) {
+
+                setStatus(
+                    "Microphone permission was denied."
+                );
+
+            } else if (error.name === "NotFoundError") {
+
+                setStatus(
+                    "No microphone was found."
+                );
+
+            } else {
+
+                setStatus(
+                    "Couldn't access the microphone."
+                );
+
+            }
+
+            return false;
+
+        }
 
     }
 
@@ -479,57 +615,30 @@ if (!SpeechRecognition) {
         }
 
 
-        // IMPORTANT:
-        // Set this BEFORE stopping recognition.
-        // This prevents any pending onresult event
-        // from putting cancelled text back.
-
-        voiceWasCancelled = cancel;
-
         isListening = false;
 
 
+        // Stop browser recognition
+
+        try {
+
+            recognition.stop();
+
+        } catch (error) {
+
+            console.log(
+                "Speech stop error:",
+                error
+            );
+
+        }
+
+
+        // X = completely erase voice input
+
         if (cancel) {
 
-            // X button:
-            // completely erase the voice input.
-
             input.value = "";
-
-
-            // Abort instead of stop.
-            // This discards any pending speech results.
-
-            try {
-
-                recognition.abort();
-
-            } catch (error) {
-
-                console.log(
-                    "Speech abort error:",
-                    error
-                );
-
-            }
-
-        } else {
-
-            // Check button:
-            // finish normally and keep the transcription.
-
-            try {
-
-                recognition.stop();
-
-            } catch (error) {
-
-                console.log(
-                    "Speech stop error:",
-                    error
-                );
-
-            }
 
         }
 
@@ -538,23 +647,26 @@ if (!SpeechRecognition) {
 
         setNormalButtons();
 
-        status.textContent = "";
+        setStatus("");
+
+        updateSendButton();
 
     }
 
 
     // Make available to submitTask()
 
-    window.stopVoiceRecognition = stopVoiceRecognition;
+    window.stopVoiceRecognition =
+        stopVoiceRecognition;
 
 
     // =========================
     // MIC BUTTON
     // =========================
 
-    micButton.addEventListener("click", () => {
+    micButton.addEventListener("click", async () => {
 
-        // If recording,
+        // If already recording,
         // mic button acts as X / cancel.
 
         if (isListening) {
@@ -566,14 +678,30 @@ if (!SpeechRecognition) {
         }
 
 
-        // New voice session
+        // =========================
+        // REQUEST MIC PERMISSION
+        // =========================
 
-        voiceWasCancelled = false;
+        const permissionGranted =
+            await requestMicrophonePermission();
 
 
-        // Start with an empty voice transcript
+        if (!permissionGranted) {
+
+            return;
+
+        }
+
+
+        // =========================
+        // START VOICE
+        // =========================
 
         finalTranscript = "";
+
+        // Clear existing text before voice starts
+
+        input.value = "";
 
 
         try {
@@ -586,13 +714,29 @@ if (!SpeechRecognition) {
 
             setVoiceButtons();
 
-            status.textContent = "Listening...";
+
+            // Purple dot + pulse while listening
+
+            setStatus(
+                "Listening...",
+                true
+            );
 
         } catch (error) {
 
             console.log(
                 "Speech start error:",
                 error
+            );
+
+            isListening = false;
+
+            micButton.classList.remove("listening");
+
+            setNormalButtons();
+
+            setStatus(
+                "Couldn't start voice input. Try again."
             );
 
         }
@@ -605,15 +749,6 @@ if (!SpeechRecognition) {
     // =========================
 
     recognition.onresult = (event) => {
-
-        // CRITICAL FIX:
-        // If the user already pressed X,
-        // completely ignore any result that arrives.
-
-        if (!isListening || voiceWasCancelled) {
-            return;
-        }
-
 
         let interimTranscript = "";
 
@@ -642,11 +777,15 @@ if (!SpeechRecognition) {
         }
 
 
-      input.value =
-    finalTranscript + interimTranscript;
+        // Update input
 
-// Keep the latest spoken words visible
-keepCursorVisible();
+        input.value =
+            finalTranscript + interimTranscript;
+
+
+        // Keep newest spoken text visible
+
+        input.scrollLeft = input.scrollWidth;
 
     };
 
@@ -657,30 +796,7 @@ keepCursorVisible();
 
     recognition.onend = () => {
 
-        // If the session was cancelled with X,
-        // DO NOT restore anything and DO NOT restart.
-
-        if (voiceWasCancelled) {
-
-            input.value = "";
-
-            micButton.classList.remove("listening");
-
-            setNormalButtons();
-
-            status.textContent = "";
-
-            // Reset cancellation state AFTER
-            // all cleanup has completed.
-
-            voiceWasCancelled = false;
-
-            return;
-
-        }
-
-
-        // If the user is still recording,
+        // If user is still recording,
         // automatically restart recognition.
 
         if (isListening) {
@@ -707,7 +823,7 @@ keepCursorVisible();
 
         setNormalButtons();
 
-        status.textContent = "";
+        setStatus("");
 
     };
 
@@ -724,19 +840,6 @@ keepCursorVisible();
         );
 
 
-        // Ignore errors caused by abort()
-        // when the user presses X.
-
-        if (
-            event.error === "aborted" &&
-            voiceWasCancelled
-        ) {
-
-            return;
-
-        }
-
-
         // Ignore normal aborts
 
         if (event.error === "aborted") {
@@ -749,9 +852,12 @@ keepCursorVisible();
 
         if (event.error === "no-speech") {
 
-            if (isListening) {
-                status.textContent = "Listening...";
-            }
+            // Keep listening state and purple pulse
+
+            setStatus(
+                "Listening...",
+                true
+            );
 
             return;
 
@@ -764,14 +870,13 @@ keepCursorVisible();
 
             isListening = false;
 
-            voiceWasCancelled = false;
-
             micButton.classList.remove("listening");
 
             setNormalButtons();
 
-            status.textContent =
-                "Microphone permission was denied.";
+            setStatus(
+                "Microphone permission was denied."
+            );
 
             return;
 
@@ -785,17 +890,9 @@ keepCursorVisible();
 
 }
 
-// =========================
-// KEEP CURSOR / LATEST TEXT VISIBLE
-// =========================
-
-function keepCursorVisible() {
-    input.scrollLeft = input.scrollWidth;
-}
 
 // =========================
 // INITIAL SEND BUTTON STATE
 // =========================
 
 updateSendButton();
-
