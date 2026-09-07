@@ -300,6 +300,8 @@ button {
     stroke-linejoin: round;
 }
 
+
+
 /* Status */
 
 .status {
@@ -486,4 +488,41 @@ button {
     text-decoration-thickness: 1.5px;
 
     text-decoration-color: #777983;
+}
+
+
+
+/* =========================
+   SEND BUTTON STATES
+   ========================= */
+
+#sendButton {
+    opacity: 0.4;
+    transition:
+        opacity 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+/* Text is available */
+
+#sendButton.has-text {
+    opacity: 1;
+    box-shadow:
+        0 0 10px rgba(255, 255, 255, 0.25);
+}
+
+
+/* Voice confirmation */
+
+#sendButton.voice-confirm {
+    opacity: 1;
+}
+
+
+/* Recording state */
+
+#micButton.listening {
+    opacity: 1;
 }
