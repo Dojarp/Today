@@ -1,4 +1,4 @@
-# 💜 Today - NotLikeTheir's
+# 💜 Today - NotYourTodoAPP
 
 > **Today — because getting things done shouldn't feel like making a to-do list.**
 
