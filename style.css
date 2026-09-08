@@ -571,3 +571,33 @@ button {
 #micButton.listening {
     opacity: 1;
 }
+
+/* =========================
+   COMPLETION MESSAGE
+   ========================= */
+
+.completion-message {
+    text-align: center;
+    margin-top: 8px;
+    padding: 14px 10px;
+
+    color: #a8a8b5;
+    font-size: 13px;
+    font-weight: 500;
+
+    animation: completionFade 0.35s ease forwards;
+}
+
+@keyframes completionFade {
+
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}

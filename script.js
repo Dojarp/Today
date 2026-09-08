@@ -287,14 +287,67 @@ function renderTasks(tasks) {
 
         checkbox.addEventListener("click", () => {
 
-            taskElement.classList.toggle("completed");
+    taskElement.classList.toggle("completed");
 
-        });
+    checkAllTasksCompleted();
 
+});
 
         taskList.appendChild(taskElement);
 
     });
+
+}
+
+// =========================
+// ALL TASKS COMPLETED
+// =========================
+
+function checkAllTasksCompleted() {
+
+    const taskList = document.getElementById("taskList");
+
+    const tasks = taskList.querySelectorAll(".task");
+
+    const completedTasks =
+        taskList.querySelectorAll(".task.completed");
+
+
+    // Remove existing message
+
+    const existingMessage =
+        document.getElementById("completionMessage");
+
+    if (existingMessage) {
+        existingMessage.remove();
+    }
+
+
+    // Nothing to check
+
+    if (tasks.length === 0) {
+        return;
+    }
+
+
+    // Check if every task is completed
+
+    if (completedTasks.length === tasks.length) {
+
+        const message =
+            document.createElement("div");
+
+        message.id = "completionMessage";
+
+        message.className = "completion-message";
+
+        message.textContent =
+            "All done. You made it through today. ✦";
+
+
+        taskList.appendChild(message);
+
+    }
 
 }
 
