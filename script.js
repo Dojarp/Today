@@ -169,17 +169,13 @@ async function submitTask() {
     sendButton.classList.remove("has-text");
 
 
-    // Show processing status + purple pulse
+    // =========================
+    // SEND REQUEST
+    // =========================
 
-    setStatus(
-        "Turning that into a plan...",
-        true
-    );
+    async function sendRequest() {
 
-
-    try {
-
-        const response = await fetch("/api/tasks", {
+        return await fetch("/api/tasks", {
 
             method: "POST",
 
@@ -193,9 +189,77 @@ async function submitTask() {
 
         });
 
+    }
+
+
+    try {
+
+        // =========================
+        // FIRST ATTEMPT
+        // =========================
+
+        setStatus(
+            "Turning that into a plan...",
+            true
+        );
+
+
+        let response = await sendRequest();
+
+
+        // =========================
+        // GEMINI 503
+        // =========================
+
+        if (response.status === 503) {
+
+            let errorData = {};
+
+            try {
+                errorData = await response.json();
+            } catch (error) {
+                console.log("Could not read 503 response.");
+            }
+
+
+            if (errorData.retryable) {
+
+                // Tell the user what's happening
+
+                setStatus(
+                    "Application is under high demand. Retrying...",
+                    true
+                );
+
+
+                // Small delay before retrying
+
+                await new Promise((resolve) => {
+                    setTimeout(resolve, 1500);
+                });
+
+
+                // =========================
+                // SECOND ATTEMPT
+                // =========================
+
+                response = await sendRequest();
+
+            }
+
+        }
+
+
+        // =========================
+        // READ RESPONSE
+        // =========================
 
         const data = await response.json();
 
+
+        // =========================
+        // STILL FAILED
+        // =========================
 
         if (!response.ok) {
 
@@ -209,7 +273,9 @@ async function submitTask() {
         console.log("Tasks:", data.tasks);
 
 
-        // Display tasks
+        // =========================
+        // DISPLAY TASKS
+        // =========================
 
         renderTasks(data.tasks);
 
@@ -221,7 +287,7 @@ async function submitTask() {
         updateSendButton();
 
 
-        // Remove status + purple dot
+        // Remove processing status
 
         setStatus("");
 
@@ -230,11 +296,14 @@ async function submitTask() {
 
         console.error(error);
 
+
         setStatus(
             "Couldn't turn that into tasks. Try again."
         );
 
+
         updateSendButton();
+
 
     } finally {
 

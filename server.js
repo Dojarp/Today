@@ -19,7 +19,7 @@ const ai = new GoogleGenAI({
 // Middleware
 app.use(express.json());
 
-// Serve your frontend files
+// Serve frontend
 app.use(express.static(__dirname));
 
 
@@ -128,9 +128,14 @@ User input:
         });
 
 
-        const result = JSON.parse(
-    response.text.replace(/```json|```/g, "").trim()
-);
+        // Clean possible markdown fences
+        const cleanResponse = response.text
+            .replace(/```json/gi, "")
+            .replace(/```/g, "")
+            .trim();
+
+
+        const result = JSON.parse(cleanResponse);
 
         console.log("AI result:", result);
 
@@ -141,8 +146,36 @@ User input:
 
         console.error("Gemini error:", error);
 
+
+        // =========================
+        // GEMINI HIGH DEMAND / 503
+        // =========================
+
+        if (error.status === 503) {
+
+            return res.status(503).json({
+
+                error:
+                    "The AI is currently experiencing high demand.",
+
+                retryable: true
+
+            });
+
+        }
+
+
+        // =========================
+        // OTHER ERRORS
+        // =========================
+
         res.status(500).json({
-            error: "Something went wrong while creating your tasks."
+
+            error:
+                "Something went wrong while creating your tasks.",
+
+            retryable: false
+
         });
 
     }
@@ -156,6 +189,8 @@ User input:
 
 app.listen(PORT, () => {
 
-    console.log(`notyourToDo running at http://localhost:${PORT}`);
+    console.log(
+        `notyourToDo running at http://localhost:${PORT}`
+    );
 
 });
