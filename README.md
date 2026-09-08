@@ -48,4 +48,4 @@ It's just a small place to answer one simple question:
 
 ---
 
-### 💜 Made for people who think of 10 things at once. 💜
+### Made for people who think of 10 things at once. 
