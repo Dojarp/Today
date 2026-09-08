@@ -80,7 +80,6 @@ function setStatus(message, processing = false) {
         return;
     }
 
-
     // Purple dot
 
     const dot = document.createElement("span");
@@ -280,6 +279,31 @@ async function submitTask() {
         renderTasks(data.tasks);
 
 
+        // =========================
+        // SCROLL TO FIRST TASK
+        // =========================
+        //
+        // Once the tasks are generated, bring the
+        // first task into the visible area.
+        //
+        // The page itself remains normally scrollable,
+        // so longer task lists can continue below it.
+
+        requestAnimationFrame(() => {
+
+            const taskList = document.getElementById("taskList");
+            const firstTask = taskList.querySelector(".task");
+
+            if (firstTask) {
+                firstTask.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            }
+
+        });
+
+
         // Clear input
 
         input.value = "";
@@ -356,17 +380,19 @@ function renderTasks(tasks) {
 
         checkbox.addEventListener("click", () => {
 
-    taskElement.classList.toggle("completed");
+            taskElement.classList.toggle("completed");
 
-    checkAllTasksCompleted();
+            checkAllTasksCompleted();
 
-});
+        });
+
 
         taskList.appendChild(taskElement);
 
     });
 
 }
+
 
 // =========================
 // ALL TASKS COMPLETED
@@ -850,6 +876,7 @@ if (!SpeechRecognition) {
                 "Speech start error:",
                 error
             );
+
 
             isListening = false;
 
