@@ -192,9 +192,9 @@ User input:
 // =========================
 
 if (require.main === module) {
-    app.listen(PORT, () => {
+    app.listen(process.env.PORT || 3000, () => {
         console.log(
-            `notyourToDo running at http://localhost:${PORT}`
+            `notyourToDo running at http://localhost:${process.env.PORT || 3000}`
         );
     });
 }
