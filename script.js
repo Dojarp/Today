@@ -4,10 +4,6 @@
 
 const currentDate = document.getElementById("currentDate");
 
-const today = new Date();
-
-const day = today.getDate();
-
 function getOrdinal(day) {
     if (day > 3 && day < 21) {
         return "th";
@@ -25,14 +21,184 @@ function getOrdinal(day) {
     }
 }
 
-const month = today.toLocaleDateString("en-US", {
-    month: "long"
-});
+function getDateKey(date = new Date()) {
 
-const year = today.getFullYear();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
 
-currentDate.textContent =
-    `${day}${getOrdinal(day)} ${month} ${year}`;
+    return `${year}-${month}-${day}`;
+
+}
+
+function formatCurrentDate() {
+
+    const today = new Date();
+    const day = today.getDate();
+    const month = today.toLocaleDateString("en-US", {
+        month: "long"
+    });
+
+    currentDate.textContent =
+        `${day}${getOrdinal(day)} ${month} ${today.getFullYear()}`;
+
+}
+
+formatCurrentDate();
+
+
+// =========================
+// TASK STORAGE
+// =========================
+//
+// This small storage layer keeps persistence separate from rendering.
+// The `days` object can later be replaced by an account-backed API.
+
+const TaskStorage = (() => {
+
+    const STORAGE_KEY = "notyourToDo.taskHistory.v1";
+
+    function createEmptyStore() {
+
+        return {
+            version: 1,
+            days: {}
+        };
+
+    }
+
+    function readStore() {
+
+        try {
+
+            const savedValue = localStorage.getItem(STORAGE_KEY);
+
+            if (!savedValue) {
+                return createEmptyStore();
+            }
+
+            const parsedValue = JSON.parse(savedValue);
+
+            if (
+                !parsedValue ||
+                typeof parsedValue !== "object" ||
+                !parsedValue.days ||
+                typeof parsedValue.days !== "object"
+            ) {
+                return createEmptyStore();
+            }
+
+            return parsedValue;
+
+        } catch (error) {
+
+            console.warn("Couldn't read saved tasks.", error);
+            return createEmptyStore();
+
+        }
+
+    }
+
+    function writeStore(store) {
+
+        try {
+
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(store));
+            return true;
+
+        } catch (error) {
+
+            console.warn("Couldn't save tasks.", error);
+            return false;
+
+        }
+
+    }
+
+    function copyDay(day) {
+
+        if (!day || !Array.isArray(day.tasks)) {
+            return null;
+        }
+
+        return {
+            createdAt: day.createdAt,
+            tasks: day.tasks.map((task) => ({ ...task }))
+        };
+
+    }
+
+    function createTask(title) {
+
+        return {
+            id: window.crypto && crypto.randomUUID
+                ? crypto.randomUUID()
+                : `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+            title,
+            completed: false
+        };
+
+    }
+
+    return {
+
+        getDay(dateKey) {
+
+            const store = readStore();
+            return copyDay(store.days[dateKey]);
+
+        },
+
+        getAllDays() {
+
+            const store = readStore();
+
+            return Object.fromEntries(
+                Object.entries(store.days)
+                    .map(([dateKey, day]) => [dateKey, copyDay(day)])
+                    .filter(([, day]) => day)
+            );
+
+        },
+
+        saveGeneratedTasks(dateKey, titles) {
+
+            const store = readStore();
+
+            store.days[dateKey] = {
+                createdAt: new Date().toISOString(),
+                tasks: titles.map(createTask)
+            };
+
+            writeStore(store);
+
+            return copyDay(store.days[dateKey]);
+
+        },
+
+        setTaskCompleted(dateKey, taskId, completed) {
+
+            const store = readStore();
+            const day = store.days[dateKey];
+
+            if (!day || !Array.isArray(day.tasks)) {
+                return;
+            }
+
+            const task = day.tasks.find((item) => item.id === taskId);
+
+            if (!task) {
+                return;
+            }
+
+            task.completed = completed;
+            writeStore(store);
+
+        }
+
+    };
+
+})();
 
 
 // =========================
@@ -276,7 +442,24 @@ async function submitTask() {
         // DISPLAY TASKS
         // =========================
 
-        renderTasks(data.tasks);
+        const generatedTitles = data.tasks
+            .map((task) => {
+                return typeof task === "string" ? task : task.title;
+            })
+            .filter((task) => typeof task === "string" && task.trim());
+
+        // Generating again keeps the existing replacement behaviour, while
+        // recording the resulting list for this calendar day.
+        // A request may span midnight, so refresh the active day before
+        // associating the newly generated tasks with a date.
+        syncActiveDay();
+
+        const savedDay = TaskStorage.saveGeneratedTasks(
+            activeDayKey,
+            generatedTitles
+        );
+
+        renderTasks(savedDay.tasks, activeDayKey);
 
 
         // =========================
@@ -342,7 +525,7 @@ async function submitTask() {
 // RENDER TASKS
 // =========================
 
-function renderTasks(tasks) {
+function renderTasks(tasks, dateKey = activeDayKey) {
 
     const taskList = document.getElementById("taskList");
 
@@ -354,6 +537,10 @@ function renderTasks(tasks) {
         const taskElement = document.createElement("div");
 
         taskElement.className = "task";
+
+        if (task.completed) {
+            taskElement.classList.add("completed");
+        }
 
 
         taskElement.innerHTML = `
@@ -369,7 +556,7 @@ function renderTasks(tasks) {
         // Safely insert AI-generated text
 
         taskElement.querySelector(".task-title").textContent =
-            task;
+            task.title;
 
 
         // Checkbox
@@ -382,6 +569,12 @@ function renderTasks(tasks) {
 
             taskElement.classList.toggle("completed");
 
+            TaskStorage.setTaskCompleted(
+                dateKey,
+                task.id,
+                taskElement.classList.contains("completed")
+            );
+
             checkAllTasksCompleted();
 
         });
@@ -390,6 +583,8 @@ function renderTasks(tasks) {
         taskList.appendChild(taskElement);
 
     });
+
+    checkAllTasksCompleted();
 
 }
 
@@ -445,6 +640,272 @@ function checkAllTasksCompleted() {
     }
 
 }
+
+
+// =========================
+// HISTORY CALENDAR
+// =========================
+
+const historyButton = document.getElementById("historyButton");
+const historyOverlay = document.getElementById("historyOverlay");
+const closeHistoryButton = document.getElementById("closeHistoryButton");
+const previousMonthButton = document.getElementById("previousMonthButton");
+const nextMonthButton = document.getElementById("nextMonthButton");
+const calendarMonth = document.getElementById("calendarMonth");
+const calendarGrid = document.getElementById("calendarGrid");
+const selectedHistoryDate = document.getElementById("selectedHistoryDate");
+const historyTaskList = document.getElementById("historyTaskList");
+
+let activeDayKey = getDateKey();
+let selectedHistoryDateKey = activeDayKey;
+let displayedHistoryMonth = new Date(
+    new Date().getFullYear(),
+    new Date().getMonth(),
+    1
+);
+
+function createDateFromKey(dateKey) {
+
+    const [year, month, day] = dateKey.split("-").map(Number);
+    return new Date(year, month - 1, day);
+
+}
+
+function formatHistoryDate(dateKey) {
+
+    return createDateFromKey(dateKey).toLocaleDateString("en-US", {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+    });
+
+}
+
+function isFullyCompleted(day) {
+
+    return Boolean(
+        day &&
+        day.tasks.length > 0 &&
+        day.tasks.every((task) => task.completed)
+    );
+
+}
+
+function renderHistoryTasks() {
+
+    const selectedDay = TaskStorage.getDay(selectedHistoryDateKey);
+
+    selectedHistoryDate.textContent =
+        formatHistoryDate(selectedHistoryDateKey);
+
+    historyTaskList.innerHTML = "";
+
+    if (!selectedDay || selectedDay.tasks.length === 0) {
+
+        const emptyMessage = document.createElement("p");
+
+        emptyMessage.className = "history-empty";
+        emptyMessage.textContent =
+            "No tasks were recorded for this day.";
+
+        historyTaskList.appendChild(emptyMessage);
+        return;
+
+    }
+
+    selectedDay.tasks.forEach((task) => {
+
+        const taskElement = document.createElement("div");
+
+        taskElement.className = "history-task";
+
+        if (task.completed) {
+            taskElement.classList.add("history-task--completed");
+        }
+
+        const state = document.createElement("span");
+
+        state.className = "history-task-status";
+        state.setAttribute("aria-hidden", "true");
+        state.textContent = task.completed ? "✓" : "×";
+
+        const title = document.createElement("span");
+
+        title.className = "history-task-title";
+        title.textContent = task.title;
+
+        taskElement.appendChild(state);
+        taskElement.appendChild(title);
+
+        historyTaskList.appendChild(taskElement);
+
+    });
+
+}
+
+function renderHistoryCalendar() {
+
+    const year = displayedHistoryMonth.getFullYear();
+    const month = displayedHistoryMonth.getMonth();
+    const currentMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1
+    );
+    const allDays = TaskStorage.getAllDays();
+
+    calendarMonth.textContent = displayedHistoryMonth.toLocaleDateString(
+        "en-US",
+        {
+            month: "long",
+            year: "numeric"
+        }
+    );
+
+    nextMonthButton.disabled =
+        displayedHistoryMonth.getTime() >= currentMonth.getTime();
+
+    calendarGrid.innerHTML = "";
+
+    const firstWeekday = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    for (let index = 0; index < firstWeekday; index++) {
+
+        const placeholder = document.createElement("span");
+
+        placeholder.className = "calendar-day-placeholder";
+        placeholder.setAttribute("aria-hidden", "true");
+
+        calendarGrid.appendChild(placeholder);
+
+    }
+
+    for (let day = 1; day <= daysInMonth; day++) {
+
+        const date = new Date(year, month, day);
+        const dateKey = getDateKey(date);
+        const dayRecord = allDays[dateKey];
+        const calendarDay = document.createElement("button");
+
+        calendarDay.type = "button";
+        calendarDay.className = "calendar-day";
+        calendarDay.textContent = day;
+        calendarDay.setAttribute(
+            "aria-label",
+            formatHistoryDate(dateKey)
+        );
+
+        if (dayRecord && dayRecord.tasks.length > 0) {
+            calendarDay.classList.add("calendar-day--active");
+        }
+
+        if (isFullyCompleted(dayRecord)) {
+            calendarDay.classList.add("calendar-day--complete");
+            calendarDay.setAttribute("aria-label", `${formatHistoryDate(dateKey)}, all tasks completed`);
+        }
+
+        if (dateKey === activeDayKey) {
+            calendarDay.classList.add("calendar-day--today");
+        }
+
+        if (dateKey === selectedHistoryDateKey) {
+            calendarDay.classList.add("calendar-day--selected");
+        }
+
+        calendarDay.addEventListener("click", () => {
+
+            selectedHistoryDateKey = dateKey;
+            renderHistoryCalendar();
+            renderHistoryTasks();
+
+        });
+
+        calendarGrid.appendChild(calendarDay);
+
+    }
+
+}
+
+function openHistory() {
+
+    selectedHistoryDateKey = activeDayKey;
+    displayedHistoryMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1
+    );
+
+    renderHistoryCalendar();
+    renderHistoryTasks();
+
+    historyOverlay.classList.add("is-open");
+    historyOverlay.setAttribute("aria-hidden", "false");
+    closeHistoryButton.focus();
+
+}
+
+function closeHistory() {
+
+    historyOverlay.classList.remove("is-open");
+    historyOverlay.setAttribute("aria-hidden", "true");
+    historyButton.focus();
+
+}
+
+historyButton.addEventListener("click", openHistory);
+closeHistoryButton.addEventListener("click", closeHistory);
+
+previousMonthButton.addEventListener("click", () => {
+
+    displayedHistoryMonth = new Date(
+        displayedHistoryMonth.getFullYear(),
+        displayedHistoryMonth.getMonth() - 1,
+        1
+    );
+
+    renderHistoryCalendar();
+
+});
+
+nextMonthButton.addEventListener("click", () => {
+
+    const currentMonth = new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        1
+    );
+
+    if (displayedHistoryMonth.getTime() >= currentMonth.getTime()) {
+        return;
+    }
+
+    displayedHistoryMonth = new Date(
+        displayedHistoryMonth.getFullYear(),
+        displayedHistoryMonth.getMonth() + 1,
+        1
+    );
+
+    renderHistoryCalendar();
+
+});
+
+historyOverlay.addEventListener("click", (event) => {
+
+    if (event.target === historyOverlay) {
+        closeHistory();
+    }
+
+});
+
+document.addEventListener("keydown", (event) => {
+
+    if (event.key === "Escape" && historyOverlay.classList.contains("is-open")) {
+        closeHistory();
+    }
+
+});
 
 
 // =========================
@@ -1044,4 +1505,65 @@ if (!SpeechRecognition) {
 // INITIAL SEND BUTTON STATE
 // =========================
 
+function loadActiveDayTasks() {
+
+    const savedDay = TaskStorage.getDay(activeDayKey);
+
+    renderTasks(
+        savedDay ? savedDay.tasks : [],
+        activeDayKey
+    );
+
+}
+
+function syncActiveDay() {
+
+    const currentDayKey = getDateKey();
+
+    if (currentDayKey === activeDayKey) {
+        return;
+    }
+
+    // A new local calendar day starts with a fresh active list. The older
+    // record is preserved in storage and remains selectable in History.
+    activeDayKey = currentDayKey;
+    formatCurrentDate();
+    loadActiveDayTasks();
+
+    if (historyOverlay.classList.contains("is-open")) {
+        renderHistoryCalendar();
+        renderHistoryTasks();
+    }
+
+}
+
+function scheduleDayChangeCheck() {
+
+    const now = new Date();
+    const nextDay = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() + 1
+    );
+    const waitTime = nextDay.getTime() - now.getTime() + 1000;
+
+    window.setTimeout(() => {
+
+        syncActiveDay();
+        scheduleDayChangeCheck();
+
+    }, waitTime);
+
+}
+
+document.addEventListener("visibilitychange", () => {
+
+    if (!document.hidden) {
+        syncActiveDay();
+    }
+
+});
+
+loadActiveDayTasks();
+scheduleDayChangeCheck();
 updateSendButton();

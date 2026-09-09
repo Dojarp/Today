@@ -14,6 +14,20 @@
 
     <div class="background-glow"></div>
 
+    <!-- Kept outside the main workspace so it remains independently positioned. -->
+    <button
+        id="historyButton"
+        class="history-button"
+        aria-label="Open task history"
+        type="button"
+    >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+            <path d="M3 4v5h5"></path>
+            <path d="M12 7v5l3.5 2"></path>
+        </svg>
+    </button>
+
     <main class="hero">
 
         <!-- Date -->
@@ -111,6 +125,80 @@
         ></div>
 
     </main>
+
+
+    <!-- History is an overlay so the current-day workspace remains untouched. -->
+    <section
+        id="historyOverlay"
+        class="history-overlay"
+        aria-hidden="true"
+    >
+        <div
+            class="history-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="historyTitle"
+        >
+            <div class="history-header">
+                <div>
+                    <p class="history-kicker">YOUR TASK RECORD</p>
+                    <h2 id="historyTitle">History</h2>
+                </div>
+
+                <button
+                    id="closeHistoryButton"
+                    class="history-close"
+                    aria-label="Close history"
+                    type="button"
+                >
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+
+            <div class="history-content">
+                <div class="calendar-card">
+                    <div class="calendar-navigation">
+                        <button
+                            id="previousMonthButton"
+                            class="calendar-nav-button"
+                            aria-label="Previous month"
+                            type="button"
+                        >
+                            <span aria-hidden="true">‹</span>
+                        </button>
+
+                        <h3 id="calendarMonth"></h3>
+
+                        <button
+                            id="nextMonthButton"
+                            class="calendar-nav-button"
+                            aria-label="Next month"
+                            type="button"
+                        >
+                            <span aria-hidden="true">›</span>
+                        </button>
+                    </div>
+
+                    <div class="calendar-weekdays" aria-hidden="true">
+                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+                        <span>Thu</span><span>Fri</span><span>Sat</span>
+                    </div>
+
+                    <div id="calendarGrid" class="calendar-grid"></div>
+
+                    <p class="calendar-legend">
+                        <span><i class="legend-dot legend-dot--active"></i>Activity</span>
+                        <span><i class="legend-dot legend-dot--complete"></i>All done</span>
+                    </p>
+                </div>
+
+                <div class="history-day-card">
+                    <p id="selectedHistoryDate" class="history-selected-date"></p>
+                    <div id="historyTaskList" class="history-task-list"></div>
+                </div>
+            </div>
+        </div>
+    </section>
 
 
     <script src="script.js"></script>
