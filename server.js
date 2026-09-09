@@ -187,10 +187,12 @@ User input:
 // START SERVER
 // =========================
 
-app.listen(PORT, () => {
+if (require.main === module) {
+    app.listen(PORT, () => {
+        console.log(
+            `notyourToDo running at http://localhost:${PORT}`
+        );
+    });
+}
 
-    console.log(
-        `notyourToDo running at http://localhost:${PORT}`
-    );
-
-});
+module.exports = app;
