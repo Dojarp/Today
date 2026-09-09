@@ -1,4 +1,4 @@
-# 💜 Today - NotYourTodo
+#  Today - NotYourTodo
 
 > **Today — because getting things done shouldn't feel like making a to-do list.**
 
@@ -24,7 +24,7 @@ Just type or talk:
 
 And let **Today** handle the rest.
 
-## 💜 What makes it different?
+## 💭 What makes it different?
 
 🎙️ **Talk instead of type**  
 Sometimes it's just easier to say what's on your mind. Voice input lets you do exactly that.
@@ -38,7 +38,7 @@ Give it a bunch of things at once and it breaks them down into individual tasks.
 ✓ **Just focus on today**  
 No complicated productivity systems. No endless dashboards. No unnecessary stuff.
 
-## 💜 The idea
+##  💡 The idea
 
 Today isn't trying to be another giant productivity platform.
 
@@ -48,4 +48,4 @@ It's just a small place to answer one simple question:
 
 ---
 
-### Made for people who think of 10 things at once. 
+### Made for people who think of 10 things at once. 💜
